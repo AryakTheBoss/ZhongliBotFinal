@@ -100,6 +100,7 @@ class ElementalShowdown {
             else if (move1 === 'Cryo' && move2 === 'Electro') { winner = this.player2; bonusPoints = 1; roundResult = "Superconduct!"; }
 
             // --- Anemo Reactions ---
+                //TODO maybe add actual interactions for anemo and geo
             else if (move1 === 'Anemo' || move2 === 'Anemo') {
                 roundResult = "Swirl! The round is a tie.";
             }
