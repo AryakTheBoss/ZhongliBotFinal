@@ -1,0 +1,19 @@
+{
+  "name": "caibot-reloaded",
+  "version": "0.0.0",
+  "description": "CAIBotReloaded",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "eslint": "^8.21.0"
+  },
+  "eslintConfig": {},
+  "dependencies": {
+    "@discordjs/rest": "^2.5.1",
+    "discord-api-types": "^0.38.14",
+    "discord.js": "^14.15.3",
+    "node_characterai": "^2.0.0-beta.10"
+  }
+}
