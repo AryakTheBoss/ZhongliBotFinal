@@ -206,32 +206,32 @@ class ElementalShowdown {
                     .addOptions(
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Pyro')
-                            .setValue('Pyro'),
-                            //.setEmoji('??'),
+                            .setValue('Pyro')
+                            .setEmoji({name: '🔥'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Hydro')
-                            .setValue('Hydro'),
-                            //.setEmoji('??'),
+                            .setValue('Hydro')
+                            .setEmoji({name: '💧'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Cryo')
-                            .setValue('Cryo'),
-                           // .setEmoji('??'),
+                            .setValue('Cryo')
+                            .setEmoji({name: '❄️'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Electro')
-                            .setValue('Electro'),
-                           // .setEmoji('?'),
+                            .setValue('Electro')
+                            .setEmoji({name: '⚡'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Anemo')
-                            .setValue('Anemo'),
-                           // .setEmoji('??'),
+                            .setValue('Anemo')
+                            .setEmoji({name: '💨'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Geo')
-                            .setValue('Geo'),
-                         //   .setEmoji('??'),
+                            .setValue('Geo')
+                            .setEmoji({name: '🪨'}),
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Dendro')
                             .setValue('Dendro')
-                           // .setEmoji('??')
+                            .setEmoji({name: '🌱'})
                     )
             );
         return [row];
