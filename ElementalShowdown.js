@@ -1,4 +1,4 @@
-// Game.js - Class definition for the Elemental Showdown game
+// ElementalShowdown.js - Class definition for the Elemental Showdown game
 
 const { ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, EmbedBuilder } = require('discord.js');
 

@@ -4,7 +4,7 @@
 const { Client, GatewayIntentBits, Collection, ActionRowBuilder, ActivityType, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const ElementalShowdown = require('./Game.js');
+const ElementalShowdown = require('./ElementalShowdown.js');
 
 // Require the characterai.io library
 const { CharacterAI } = require("node_characterai");
