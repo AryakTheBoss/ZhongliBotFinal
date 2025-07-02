@@ -2,7 +2,7 @@
 # This is the most important line.
 # It tells Docker to use the x86_64 (amd64) version of the Node.js image,
 # which will automatically trigger QEMU emulation on your arm64 Pi.
-FROM --platform=linux/amd64 node:18-slim
+FROM --platform=linux/amd64 node:22-alpine
 
 # ---- Setup App Directory ----
 # Create and set the working directory inside the container
