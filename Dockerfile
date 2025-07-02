@@ -2,15 +2,15 @@
 # This is the most important line.
 # It tells Docker to use the x86_64 (amd64) version of the Node.js image,
 # which will automatically trigger QEMU emulation on your arm64 Pi.
-FROM --platform=linux/amd64 node:22-alpine
+FROM --platform=linux/amd64 node:22
 
 # ---- Setup App Directory ----
 # Create and set the working directory inside the container
 WORKDIR /app
 
 # ---- ADD THIS SECTION ----
-# Install Python and build tools using Alpine's 'apk' package manager
-RUN apk add --no-cache python3 make g++
+# Install build tools using Debian's 'apt-get'
+RUN apt-get update && apt-get install -y python3 build-essential
 
 # ---- Install Dependencies ----
 # Copy package.json and package-lock.json first. This is a best practice
