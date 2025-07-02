@@ -8,6 +8,10 @@ FROM --platform=linux/amd64 node:22-alpine
 # Create and set the working directory inside the container
 WORKDIR /app
 
+# ---- ADD THIS SECTION ----
+# Install Python and build tools needed for native addons
+RUN apt-get update && apt-get install -y python3 build-essential
+
 # ---- Install Dependencies ----
 # Copy package.json and package-lock.json first. This is a best practice
 # that uses Docker's layer caching. If your dependencies don't change,
