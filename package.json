@@ -15,5 +15,8 @@
     "discord-api-types": "^0.38.14",
     "discord.js": "^14.15.3",
     "node_characterai": "^2.0.0-beta.10"
+  },
+  "overrides": {
+    "naudiodon": "../_EXCLUDED_"
   }
 }
