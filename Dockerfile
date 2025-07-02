@@ -9,8 +9,8 @@ FROM --platform=linux/amd64 node:22-alpine
 WORKDIR /app
 
 # ---- ADD THIS SECTION ----
-# Install Python and build tools needed for native addons
-RUN apt-get update && apt-get install -y python3 build-essential
+# Install Python and build tools using Alpine's 'apk' package manager
+RUN apk add --no-cache python3 make g++
 
 # ---- Install Dependencies ----
 # Copy package.json and package-lock.json first. This is a best practice
