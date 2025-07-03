@@ -22,5 +22,10 @@ jobs:
 
       - name: Build and push the Docker image
         run: |
-          docker build . --platform=linux/amd64 --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/zlbot:latest
-          docker push ghcr.io/${{ github.repository_owner }}/zlbot:latest
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/zlbot
+        # Convert the string to lowercase for valid Docker tagging
+          IMAGE_ID_LC=$(echo $IMAGE_ID | tr '[:upper:]' '[:lower:]')
+        
+        # Build and push with the lowercase tag
+          docker build . --platform=linux/amd64 --file Dockerfile --tag $IMAGE_ID_LC:latest
+          docker push $IMAGE_ID_LC:latest
