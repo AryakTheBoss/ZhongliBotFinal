@@ -10,7 +10,7 @@ const ElementalShowdown = require('./ElementalShowdown.js');
 const { CharacterAI } = require("node_characterai");
 
 // Get configuration from config.json
-const { token, characterId, characterAiToken } = require('./config.json');
+let {token, characterId, characterAiToken} = require('./config.json');
 
 // Create a new client instance
 const client = new Client({
@@ -29,6 +29,14 @@ var characterAI = new CharacterAI();
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
+    if(process.env.CAI_TOKEN){
+        characterAiToken = process.env.CAI_TOKEN;
+    }
+    if(process.env.DISCORD_TOKEN){
+        token = process.env.DISCORD_TOKEN;
+    }
+
+
     if (!characterAiToken) {
         console.error("Character.ai token is missing from config.json. Please add it to use the bot.");
         return; // Stop the bot if the token is missing
