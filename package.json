@@ -14,6 +14,7 @@
     "@discordjs/rest": "^2.5.1",
     "discord-api-types": "^0.38.14",
     "discord.js": "^14.15.3",
-    "node_characterai": "^2.0.0-beta.10"
+    "node_characterai": "git+https://github.com/AryakTheBoss/node_characterai_noaudio",
+    "typescript": "^5.8.3"
   }
 }
