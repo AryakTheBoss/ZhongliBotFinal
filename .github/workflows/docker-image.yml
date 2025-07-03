@@ -19,7 +19,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GH_PAT }}
-
       - name: Build and push the Docker image
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository_owner }}/zlbot
