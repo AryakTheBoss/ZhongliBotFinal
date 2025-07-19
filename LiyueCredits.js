@@ -8,7 +8,7 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
         userId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
-        lastModified INTEGER NOT NULL
+        lastModified INTEGER
     )
 `);
 
@@ -16,7 +16,6 @@ class LiyueCredits {
     constructor() {
         this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified) VALUES (?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ?');
-        this.updateStmt = db.prepare('UPDATE credits SET amount = ?, lastModified = ? WHERE userId = ?');
     }
 
     /**
