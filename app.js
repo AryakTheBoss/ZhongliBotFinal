@@ -5,6 +5,7 @@ const { Client, GatewayIntentBits, Collection, ActionRowBuilder, ActivityType, B
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const ElementalShowdown = require('./ElementalShowdown.js');
+const LiyueCredits = require('./LiyueCredits.js');
 
 // Require the characterai.io library
 const { CharacterAI } = require("node_characterai");
@@ -76,7 +77,27 @@ client.once('ready', async () => {
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('open')
-                    .setDescription('Create an open game for anyone to join.'))
+                    .setDescription('Create an open game for anyone to join.')),
+        new SlashCommandBuilder()
+            .setName('liyue-credit')
+            .setDescription('Give or take someones liyue credit')
+            .addSubcommand(subcommand =>
+                subcommand
+                    .setName('remove')
+                    .setDescription('remove liyue credits to a user')
+                    .addUserOption(option => option.setName('user').setDescription('The user to discredit').setRequired(true))
+                    .addUserOption(option => option.setName('amount').setDescription('The amount to discredit').setRequired(true)))
+            .addSubcommand(subcommand =>
+                subcommand
+                    .setName('add')
+                    .setDescription('add liyue credits to a user')
+                    .addUserOption(option => option.setName('user').setDescription('The user to credit').setRequired(true))
+                    .addUserOption(option => option.setName('amount').setDescription('The amount to credit').setRequired(true)))
+            .addSubcommand(subcommand =>
+                subcommand
+                    .setName('check')
+                    .setDescription('check liyue credits of a user')
+                    .addUserOption(option => option.setName('user').setDescription('The user to discredit').setRequired(false)))
     ].map(command => command.toJSON());
 
     const rest = new REST({ version: '9' }).setToken(token);
@@ -159,6 +180,7 @@ client.on('interactionCreate', async interaction => {
                 await interaction.editReply({ content: 'There was an error while communicating with Character.ai.', ephemeral: true });
             }
         }
+
         if (commandName === 'reset') {
             await interaction.deferReply();
             try {
@@ -173,6 +195,41 @@ client.on('interactionCreate', async interaction => {
                 await interaction.editReply({ content: 'There was an error while trying to reset the chat history.', ephemeral: true });
             }
         }
+
+        if(commandName === 'liyue-credit'){
+            const subcommand = interaction.options.getSubcommand();
+            if(subcommand === 'remove'){
+                const user = interaction.options.getUser('user');
+                const amount = interaction.options.getInteger('amount');
+                if(user.bot){
+                    return interaction.reply({ content: "You can't discredit a bot!", ephemeral: true });
+                }
+                if(user.id === interaction.user.id){
+                    return interaction.reply({ content: "You can't discredit yourself!", ephemeral: true });
+                }
+                //TODO: handle the removing of credits here from LiyueCredits class
+                return interaction.reply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
+
+            } else if(subcommand === 'add'){
+                const user = interaction.options.getUser('user');
+                const amount = interaction.options.getInteger('amount');
+                if(user.bot){
+                    return interaction.reply({ content: "You can't credit a bot!", ephemeral: true });
+                }
+                if(user.id === interaction.user.id){
+                    return interaction.reply({ content: "You can't credit yourself!", ephemeral: true });
+                }
+                //TODO: handle the adding of credits here from LiyueCredits class
+                return interaction.reply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
+
+            } else if(subcommand === 'check'){
+                //TODO: if user not provided check self points
+                const user = interaction.options.getUser('user');
+                //TODO: handle getting points here from LiyueCredits class
+            }
+
+        }
+
     } else if (interaction.isButton()) {
         const customIdParts = interaction.customId.split('_');
         const action = customIdParts[0];
