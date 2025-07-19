@@ -28,6 +28,13 @@ const liyueCredits = new LiyueCredits();
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
 
+function formatTimeLeft(ms) {
+    const totalSeconds = Math.ceil(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+}
+
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -210,6 +217,11 @@ client.on('interactionCreate', async interaction => {
                 }
                 if(amount > 10000){
                     return interaction.reply({ content: "You can't take more than 10,000 liyue credits at a time!", ephemeral: true });
+                }
+                const cooldownStatus = liyueCredits.canRemoveCredits(user.id);
+                if (!cooldownStatus.canRemove) {
+                    const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
+                    return interaction.reply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
                 }
                 liyueCredits.removeCredits(user.id, amount);
                 return interaction.reply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });

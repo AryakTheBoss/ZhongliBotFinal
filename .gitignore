@@ -5573,3 +5573,4 @@
 /package-lock.json
 /node_modules/discord.js/node_modules/@discordjs/collection/README.md
 /node_modules/discord.js/node_modules/@sapphire/snowflake/README.md
+/*.db
