@@ -224,6 +224,9 @@ client.on('interactionCreate', async interaction => {
                     const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
                     return interaction.editReply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
                 }
+                if(amount < 0){
+                    return interaction.editReply({ content: "You can't remove negative numbers, use add command instead!", ephemeral: true });
+                }
                 liyueCredits.removeCredits(user.id, amount);
                 return interaction.editReply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
 
