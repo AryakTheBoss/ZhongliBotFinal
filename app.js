@@ -239,6 +239,9 @@ client.on('interactionCreate', async interaction => {
                 if(amount > 10000){
                     return interaction.editReply({ content: "You can't add more than 10,000 liyue credits at a time!", ephemeral: true });
                 }
+                if(amount < 0){
+                    return interaction.editReply({ content: "You can't add negative numbers, use remove command instead!", ephemeral: true });
+                }
                 liyueCredits.addCredits(user.id, amount);
                 return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
 
