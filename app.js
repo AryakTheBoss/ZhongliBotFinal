@@ -205,46 +205,47 @@ client.on('interactionCreate', async interaction => {
         }
 
         if(commandName === 'liyue-credit'){
+            await interaction.deferReply();
             const subcommand = interaction.options.getSubcommand();
             if(subcommand === 'remove'){
                 const user = interaction.options.getUser('user');
                 const amount = interaction.options.getInteger('amount');
                 if(user.bot){
-                    return interaction.reply({ content: "You can't discredit a bot!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't discredit a bot!", ephemeral: true });
                 }
                 if(user.id === interaction.user.id){
-                    return interaction.reply({ content: "You can't discredit yourself!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't discredit yourself!", ephemeral: true });
                 }
                 if(amount > 10000){
-                    return interaction.reply({ content: "You can't take more than 10,000 liyue credits at a time!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't take more than 10,000 liyue credits at a time!", ephemeral: true });
                 }
                 const cooldownStatus = liyueCredits.canRemoveCredits(user.id);
                 if (!cooldownStatus.canRemove) {
                     const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
-                    return interaction.reply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
+                    return interaction.editReply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
                 }
                 liyueCredits.removeCredits(user.id, amount);
-                return interaction.reply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
+                return interaction.editReply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
 
             } else if(subcommand === 'add'){
                 const user = interaction.options.getUser('user');
                 const amount = interaction.options.getInteger('amount');
                 if(user.bot){
-                    return interaction.reply({ content: "You can't credit a bot!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't credit a bot!", ephemeral: true });
                 }
                 if(user.id === interaction.user.id){
-                    return interaction.reply({ content: "You can't credit yourself!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't credit yourself!", ephemeral: true });
                 }
                 if(amount > 10000){
-                    return interaction.reply({ content: "You can't add more than 10,000 liyue credits at a time!", ephemeral: true });
+                    return interaction.editReply({ content: "You can't add more than 10,000 liyue credits at a time!", ephemeral: true });
                 }
                 liyueCredits.addCredits(user.id, amount);
-                return interaction.reply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
+                return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
 
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
                 const credits = liyueCredits.checkCredits(user.id);
-                return interaction.reply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
+                return interaction.editReply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
             }
 
         }
