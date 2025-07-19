@@ -23,6 +23,7 @@ const client = new Client({
 });
 
 client.games = new Collection();
+const liyueCredits = new LiyueCredits();
 
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
@@ -86,13 +87,13 @@ client.once('ready', async () => {
                     .setName('remove')
                     .setDescription('remove liyue credits to a user')
                     .addUserOption(option => option.setName('user').setDescription('The user to discredit').setRequired(true))
-                    .addUserOption(option => option.setName('amount').setDescription('The amount to discredit').setRequired(true)))
+                    .addIntegerOption(option => option.setName('amount').setDescription('The amount to discredit').setRequired(true)))
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('add')
                     .setDescription('add liyue credits to a user')
                     .addUserOption(option => option.setName('user').setDescription('The user to credit').setRequired(true))
-                    .addUserOption(option => option.setName('amount').setDescription('The amount to credit').setRequired(true)))
+                    .addIntegerOption(option => option.setName('amount').setDescription('The amount to credit').setRequired(true)))
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('check')
@@ -207,7 +208,10 @@ client.on('interactionCreate', async interaction => {
                 if(user.id === interaction.user.id){
                     return interaction.reply({ content: "You can't discredit yourself!", ephemeral: true });
                 }
-                //TODO: handle the removing of credits here from LiyueCredits class
+                if(amount > 10000){
+                    return interaction.reply({ content: "You can't take more than 10,000 liyue credits at a time!", ephemeral: true });
+                }
+                liyueCredits.removeCredits(user.id, amount);
                 return interaction.reply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
 
             } else if(subcommand === 'add'){
@@ -219,13 +223,16 @@ client.on('interactionCreate', async interaction => {
                 if(user.id === interaction.user.id){
                     return interaction.reply({ content: "You can't credit yourself!", ephemeral: true });
                 }
-                //TODO: handle the adding of credits here from LiyueCredits class
+                if(amount > 10000){
+                    return interaction.reply({ content: "You can't add more than 10,000 liyue credits at a time!", ephemeral: true });
+                }
+                liyueCredits.addCredits(user.id, amount);
                 return interaction.reply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
 
             } else if(subcommand === 'check'){
-                //TODO: if user not provided check self points
-                const user = interaction.options.getUser('user');
-                //TODO: handle getting points here from LiyueCredits class
+                const user = interaction.options.getUser('user') || interaction.user;
+                const credits = liyueCredits.checkCredits(user.id);
+                return interaction.reply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
             }
 
         }
