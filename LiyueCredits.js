@@ -17,17 +17,18 @@ db.exec(`
 class LiyueCredits {
     constructor() {
         this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified, guildId) VALUES (?, ?, ?, ?)');
-        this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ?');
+        this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ? AND guildId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits WHERE guildId = ?');
     }
 
     /**
      * Checks if credits can be removed from a user based on a 24-hour cooldown.
      * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
      * @returns {{canRemove: boolean, timeLeft: number|null}} - An object indicating if removal is allowed and the time left if not.
      */
-    canRemoveCredits(userId) {
-        const row = this.getStmt.get(userId);
+    canRemoveCredits(userId, guildId) {
+        const row = this.getStmt.get(userId, guildId);
         if (!row || !row.lastModified) {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
@@ -76,7 +77,7 @@ class LiyueCredits {
      * @param {number} amount - The amount of credits to add.
      */
     addCredits(userId, amount, guildId) {
-        const currentData = this.getUserData(userId);
+        const currentData = this.getUserData(userId, guildId);
         const newAmount = currentData.amount + amount;
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
         this.addStmt.run(userId, newAmount, currentData.lastModified, guildId);
@@ -89,7 +90,7 @@ class LiyueCredits {
      * @param {number} amount - The amount of credits to remove.
      */
     removeCredits(userId, amount, guildId) {
-        const currentCredits = this.checkCredits(userId);
+        const currentCredits = this.checkCredits(userId, guildId);
         const newAmount = currentCredits - amount;
         const now = Date.now();
         this.addStmt.run(userId, newAmount, now, guildId);
@@ -98,20 +99,22 @@ class LiyueCredits {
     /**
      * Checks the Liyue Credits of a user.
      * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
      * @returns {number} The user's current credit amount.
      */
-    checkCredits(userId) {
-        const row = this.getStmt.get(userId);
+    checkCredits(userId, guildId) {
+        const row = this.getStmt.get(userId, guildId);
         return row ? row.amount : 1000; // Return 1000 if user not found
     }
 
     /**
      * Gets all data for a user.
      * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
      * @returns {{amount: number, lastModified: number|null}} The user's data.
      */
-    getUserData(userId) {
-        const row = this.getStmt.get(userId);
+    getUserData(userId, guildId) {
+        const row = this.getStmt.get(userId, guildId);
         return row || { amount: 1000, lastModified: null }; // Return 1000 for new users
     }
 }

@@ -254,7 +254,7 @@ client.on('interactionCreate', async interaction => {
 
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
-                const credits = liyueCredits.checkCredits(user.id);
+                const credits = liyueCredits.checkCredits(user.id, interaction.guild.id);
                 return interaction.editReply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
             } else if(subcommand === 'leaderboard'){
                 const board = liyueCredits.getLeaderboard(interaction.guild.id);
