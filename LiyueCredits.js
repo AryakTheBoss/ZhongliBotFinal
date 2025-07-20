@@ -1,6 +1,7 @@
 // LiyueCredits.js
 
 const Database = require('better-sqlite3');
+const {Collection} = require("discord.js");
 const db = new Database('liyue_credits.db');
 
 // Create the table if it doesn't exist
@@ -16,6 +17,7 @@ class LiyueCredits {
     constructor() {
         this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified) VALUES (?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ?');
+        this.getAllStmt = db.prepare('SELECT * FROM credits');
     }
 
     /**
@@ -37,6 +39,32 @@ class LiyueCredits {
         }
 
         return { canRemove: true, timeLeft: null };
+    }
+
+    getLeaderboard(){
+        const rows = this.getAllStmt.get();
+        const result = new Map();
+
+        if(!rows){
+            return new Map();
+        }
+        for(const row of rows){
+            result.set(row.userId, row.amount);
+        }
+
+        return this.sortMapByValueDescending(result);
+    }
+
+     sortMapByValueDescending(mapToSort) {
+        // 1. Convert the Map to an array of [key, value] pairs.
+        const mapEntries = Array.from(mapToSort.entries());
+
+        // 2. Sort the array based on the value (the second element in each pair).
+        // The comparator (b[1] - a[1]) sorts numbers in descending order.
+        mapEntries.sort((a, b) => b[1] - a[1]);
+
+        // 3. Create a new Map from the sorted array of pairs.
+         return new Map(mapEntries);
     }
 
 

@@ -106,6 +106,10 @@ client.once('ready', async () => {
                     .setName('check')
                     .setDescription('check liyue credits of a user')
                     .addUserOption(option => option.setName('user').setDescription('The user to discredit').setRequired(false)))
+            .addSubcommand(subcommand =>
+                subcommand
+                    .setName('leaderboard')
+                    .setDescription('check liyue credits board'))
     ].map(command => command.toJSON());
 
     const rest = new REST({ version: '9' }).setToken(token);
@@ -252,6 +256,25 @@ client.on('interactionCreate', async interaction => {
                 const user = interaction.options.getUser('user') || interaction.user;
                 const credits = liyueCredits.checkCredits(user.id);
                 return interaction.editReply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
+            } else if(subcommand === 'leaderboard'){
+                const board = liyueCredits.getLeaderboard();
+                if(board.size === 0){
+                    return interaction.editReply({ content: "No records found in Database.", ephemeral: true });
+                }
+                let stringBoard = "--- Leaderboard ---\n";
+                let rank = 1;
+                // Iterate through the sorted map of [userId, score]
+                for (const [userId, amount] of board.entries()) {
+                    try {
+                        // Asynchronously fetch the user object from the ID
+                        const user = await client.users.fetch(userId);
+                        stringBoard += `${rank}: ${user.username} - ${amount}\n`;
+                    } catch (error) {
+                        console.error(`Could not find user with ID: ${userId}`);
+                    }
+                    rank++;
+                }
+                return interaction.editReply({ content: stringBoard, ephemeral: true });
             }
 
         }
