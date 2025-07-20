@@ -1,13 +1,12 @@
 // LiyueCredits.js
 
 const Database = require('better-sqlite3');
-const {Collection} = require("discord.js");
 const db = new Database('liyue_credits.db');
 
 // Create the table if it doesn't exist
 db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
-        userId TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
         amount INTEGER NOT NULL DEFAULT 1000,
         lastModified INTEGER,
         guildId TEXT NOT NULL
