@@ -9,14 +9,14 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
         userId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
-        guildId TEXT NOT NULL,
-        lastModified INTEGER
+        lastModified INTEGER,
+        guildId TEXT NOT NULL
     )
 `);
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, guildId, lastModified) VALUES (?, ?, ?, ?)');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified, guildId) VALUES (?, ?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits WHERE guildId = ?');
     }
@@ -79,7 +79,7 @@ class LiyueCredits {
         const currentData = this.getUserData(userId);
         const newAmount = currentData.amount + amount;
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId, newAmount, guildId, currentData.lastModified);
+        this.addStmt.run(userId, newAmount, currentData.lastModified, guildId);
     }
 
     /**
@@ -92,7 +92,7 @@ class LiyueCredits {
         const currentCredits = this.checkCredits(userId);
         const newAmount = currentCredits - amount;
         const now = Date.now();
-        this.addStmt.run(userId, newAmount, guildId, now);
+        this.addStmt.run(userId, newAmount, now, guildId);
     }
 
     /**
