@@ -42,7 +42,7 @@ class LiyueCredits {
     }
 
     getLeaderboard(){
-        const rows = this.getAllStmt.get();
+        const rows = this.getAllStmt.all();
         const result = new Map();
 
         if(!rows){
