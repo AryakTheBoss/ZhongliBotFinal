@@ -29,7 +29,7 @@ class LiyueCredits {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
 
-        const twentyFourHours = 8 * 60 * 60 * 1000;
+        const twentyFourHours = 1.5 * 60 * 60 * 1000;
         const timeSinceLast = Date.now() - row.lastModified;
 
         if (timeSinceLast < twentyFourHours) {
