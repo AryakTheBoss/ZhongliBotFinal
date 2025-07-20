@@ -9,15 +9,16 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
         userId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
+        guildId TEXT NOT NULL,
         lastModified INTEGER
     )
 `);
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified) VALUES (?, ?, ?)');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, guildId, lastModified) VALUES (?, ?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ?');
-        this.getAllStmt = db.prepare('SELECT * FROM credits');
+        this.getAllStmt = db.prepare('SELECT * FROM credits WHERE guildId = ?');
     }
 
     /**
@@ -41,8 +42,8 @@ class LiyueCredits {
         return { canRemove: true, timeLeft: null };
     }
 
-    getLeaderboard(){
-        const rows = this.getAllStmt.all();
+    getLeaderboard(guildId){
+        const rows = this.getAllStmt.all(guildId);
         const result = new Map();
 
         if(!rows){
@@ -71,25 +72,27 @@ class LiyueCredits {
     /**
      * Adds Liyue Credits to a user.
      * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to add.
      */
-    addCredits(userId, amount) {
+    addCredits(userId, amount, guildId) {
         const currentData = this.getUserData(userId);
         const newAmount = currentData.amount + amount;
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId, newAmount, currentData.lastModified);
+        this.addStmt.run(userId, newAmount, guildId, currentData.lastModified);
     }
 
     /**
      * Removes Liyue Credits from a user and updates their cooldown timestamp.
      * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to remove.
      */
-    removeCredits(userId, amount) {
+    removeCredits(userId, amount, guildId) {
         const currentCredits = this.checkCredits(userId);
         const newAmount = currentCredits - amount;
         const now = Date.now();
-        this.addStmt.run(userId, newAmount, now);
+        this.addStmt.run(userId, newAmount, guildId, now);
     }
 
     /**

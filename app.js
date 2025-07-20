@@ -231,7 +231,7 @@ client.on('interactionCreate', async interaction => {
                 if(amount < 0){
                     return interaction.editReply({ content: "You can't remove negative numbers, use add command instead!", ephemeral: true });
                 }
-                liyueCredits.removeCredits(user.id, amount);
+                liyueCredits.removeCredits(user.id, amount, interaction.guild.id);
                 return interaction.editReply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
 
             } else if(subcommand === 'add'){
@@ -249,7 +249,7 @@ client.on('interactionCreate', async interaction => {
                 if(amount < 0){
                     return interaction.editReply({ content: "You can't add negative numbers, use remove command instead!", ephemeral: true });
                 }
-                liyueCredits.addCredits(user.id, amount);
+                liyueCredits.addCredits(user.id, amount, interaction.guild.id);
                 return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
 
             } else if(subcommand === 'check'){
@@ -257,7 +257,7 @@ client.on('interactionCreate', async interaction => {
                 const credits = liyueCredits.checkCredits(user.id);
                 return interaction.editReply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
             } else if(subcommand === 'leaderboard'){
-                const board = liyueCredits.getLeaderboard();
+                const board = liyueCredits.getLeaderboard(interaction.guild.id);
                 if(board.size === 0){
                     return interaction.editReply({ content: "No records found in Database.", ephemeral: true });
                 }
