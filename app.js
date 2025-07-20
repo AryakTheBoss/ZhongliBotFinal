@@ -268,7 +268,7 @@ client.on('interactionCreate', async interaction => {
                     try {
                         // Asynchronously fetch the user object from the ID
                         const user = await client.users.fetch(userId);
-                        stringBoard += `${rank}: ${user.username} - ${amount}\n`;
+                        stringBoard += `${rank}: ${user.username} ~~ ${amount}\n`;
                     } catch (error) {
                         console.error(`Could not find user with ID: ${userId}`);
                     }
