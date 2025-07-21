@@ -18,7 +18,8 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.MessageContent
     ]
 });
 
@@ -150,9 +151,9 @@ client.on('messageCreate', async message => {
 
         liyueCredits.removeCredits(userId, amount, guildId);
         await message.reply(`You mentioned league! You lose ${amount} Liyue credits.`);
-    } else {
+    } /*else {
         console.log('No forbidden words found for message: '+messageContent);
-    }
+    }*/
 });
 
 client.on('interactionCreate', async interaction => {   
