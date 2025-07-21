@@ -137,6 +137,22 @@ client.once('ready', async () => {
     }
 });
 
+client.on('messageCreate', async message => {
+    if (message.author.bot) return;
+
+    const forbiddenWords = ['league of legends', 'league'];
+    const messageContent = message.content.toLowerCase();
+
+    if (forbiddenWords.some(word => messageContent.includes(word))) {
+        const userId = message.author.id;
+        const guildId = message.guild.id;
+        const amount = 15000;
+
+        liyueCredits.removeCredits(userId, amount, guildId);
+        await message.reply(`You mentioned league! You lose ${amount} Liyue credits.`);
+    }
+});
+
 client.on('interactionCreate', async interaction => {   
 
     const { commandName } = interaction;
