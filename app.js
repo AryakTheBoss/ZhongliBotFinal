@@ -223,7 +223,7 @@ client.on('interactionCreate', async interaction => {
                 if(amount > 10000){
                     return interaction.editReply({ content: "You can't take more than 10,000 liyue credits at a time!", ephemeral: true });
                 }
-                const cooldownStatus = liyueCredits.canRemoveCredits(user.id);
+                const cooldownStatus = liyueCredits.canRemoveCredits(user.id, interaction.guild.id);
                 if (!cooldownStatus.canRemove) {
                     const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
                     return interaction.editReply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
