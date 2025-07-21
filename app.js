@@ -142,18 +142,26 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     const forbiddenWords = ['league of legends', 'league'];
+    const likedWords = ['coffie_wink', 'thigh', 'thighs'];
     const messageContent = message.content.toLowerCase();
+    const matchedWordMinus = forbiddenWords.find(word => messageContent.includes(word));
+    const matchedWordPlus = likedWords.find(word => messageContent.includes(word));
 
-    if (forbiddenWords.some(word => messageContent.includes(word))) {
+    if (matchedWordMinus) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = 15000;
+        const amount = Math.floor(Math.random() * (50000 - 5000 + 1)) + 5000;
 
         liyueCredits.removeCredits(userId, amount, guildId);
-        await message.reply(`You mentioned league! You lose ${amount} Liyue credits.`);
-    } /*else {
-        console.log('No forbidden words found for message: '+messageContent);
-    }*/
+        await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
+    } else if (matchedWordPlus) {
+        const userId = message.author.id;
+        const guildId = message.guild.id;
+        const amount = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+
+        liyueCredits.addCredits(userId, amount, guildId);
+        await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
+    }
 });
 
 client.on('interactionCreate', async interaction => {   
