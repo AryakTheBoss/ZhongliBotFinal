@@ -43,7 +43,7 @@ class LiyueCredits {
     }
 
     getLeaderboard(guildId){
-        const rows = this.getAllStmt.all(guildId);
+        const rows = this.getAllStmt.all();
         const result = new Map();
 
         if(!rows){
