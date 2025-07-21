@@ -150,6 +150,8 @@ client.on('messageCreate', async message => {
 
         liyueCredits.removeCredits(userId, amount, guildId);
         await message.reply(`You mentioned league! You lose ${amount} Liyue credits.`);
+    } else {
+        console.log('No forbidden words found for message: '+messageContent);
     }
 });
 
