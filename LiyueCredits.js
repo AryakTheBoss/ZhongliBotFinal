@@ -2,22 +2,22 @@
 
 const Database = require('better-sqlite3');
 const db = new Database('liyue_credits.db');
+const SEPERATOR = "_";
 
 // Create the table if it doesn't exist
 db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
-        userId TEXT NOT NULL,
+        compositeId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
-        lastModified INTEGER,
-        guildId TEXT NOT NULL
+        lastModified INTEGER
     )
 `);
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (userId, amount, lastModified, guildId) VALUES (?, ?, ?, ?)');
-        this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE userId = ? AND guildId = ?');
-        this.getAllStmt = db.prepare('SELECT * FROM credits WHERE guildId = ?');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified) VALUES (?, ?, ?)');
+        this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE compositeId = ?');
+        this.getAllStmt = db.prepare('SELECT * FROM credits');
     }
 
     /**
@@ -27,7 +27,7 @@ class LiyueCredits {
      * @returns {{canRemove: boolean, timeLeft: number|null}} - An object indicating if removal is allowed and the time left if not.
      */
     canRemoveCredits(userId, guildId) {
-        const row = this.getStmt.get(userId, guildId);
+        const row = this.getStmt.get(userId+SEPERATOR+guildId);
         if (!row || !row.lastModified) {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
@@ -50,10 +50,19 @@ class LiyueCredits {
             return new Map();
         }
         for(const row of rows){
-            result.set(row.userId, row.amount);
+            if(this.parseGuildIdFromCompositeId(row.compositeId) === guildId) {
+                result.set(this.parseUserIdFromCompositeId(row.compositeId), row.amount);
+            }
         }
 
         return this.sortMapByValueDescending(result);
+    }
+
+    parseUserIdFromCompositeId(compositeId){
+        return compositeId.split(SEPERATOR)[0];
+    }
+    parseGuildIdFromCompositeId(compositeId){
+        return compositeId.split(SEPERATOR)[1];
     }
 
      sortMapByValueDescending(mapToSort) {
@@ -79,7 +88,7 @@ class LiyueCredits {
         const currentData = this.getUserData(userId, guildId);
         const newAmount = currentData.amount + amount;
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId, newAmount, currentData.lastModified, guildId);
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified);
     }
 
     /**
@@ -92,7 +101,7 @@ class LiyueCredits {
         const currentCredits = this.checkCredits(userId, guildId);
         const newAmount = currentCredits - amount;
         const now = Date.now();
-        this.addStmt.run(userId, newAmount, now, guildId);
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now);
     }
 
     /**
@@ -102,7 +111,7 @@ class LiyueCredits {
      * @returns {number} The user's current credit amount.
      */
     checkCredits(userId, guildId) {
-        const row = this.getStmt.get(userId, guildId);
+        const row = this.getStmt.get(userId+SEPERATOR+guildId);
         return row ? row.amount : 1000; // Return 1000 if user not found
     }
 
@@ -113,7 +122,7 @@ class LiyueCredits {
      * @returns {{amount: number, lastModified: number|null}} The user's data.
      */
     getUserData(userId, guildId) {
-        const row = this.getStmt.get(userId, guildId);
+        const row = this.getStmt.get(userId+SEPERATOR+guildId);
         return row || { amount: 1000, lastModified: null }; // Return 1000 for new users
     }
 }
