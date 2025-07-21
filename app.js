@@ -157,7 +157,7 @@ client.on('messageCreate', async message => {
     } else if (matchedWordPlus) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+        const amount = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
 
         liyueCredits.addCredits(userId, amount, guildId);
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
