@@ -3,6 +3,7 @@
 const Database = require('better-sqlite3');
 const db = new Database('liyue_credits.db');
 const SEPERATOR = "_";
+let settingsObject = {cooldown: 10800000, amountLimit: 10000, negativeCredits: false};
 
 // Create the table if it doesn't exist
 db.exec(`
@@ -12,16 +13,26 @@ db.exec(`
         lastModified INTEGER
     )
 `);
+db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY,
+        cooldown INTEGER,
+        amountLimit INTEGER,
+        negativeCredits BOOL DEFAULT 0,
+    )
+`);
 
 class LiyueCredits {
     constructor() {
         this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified) VALUES (?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE compositeId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits');
+        this.getSettingsStmt = db.prepare('SELECT * FROM settings WHERE id = ?');
+        this.changeSettingsStmt = db.prepare('INSERT OR REPLACE INTO settings (id, cooldown, amountLimit, negativeCredits) VALUES (?, ?, ?, ?)');
     }
 
     /**
-     * Checks if credits can be removed from a user based on a 24-hour cooldown.
+     * Checks if credits can be removed from a user based on a cooldown.
      * @param {string} userId - The ID of the user.
      * @param {string} guildId - The ID of the guild.
      * @returns {{canRemove: boolean, timeLeft: number|null}} - An object indicating if removal is allowed and the time left if not.
@@ -32,11 +43,11 @@ class LiyueCredits {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
 
-        const twentyFourHours = 1.5 * 60 * 60 * 1000;
+        const cooldown = settingsObject.cooldown;
         const timeSinceLast = Date.now() - row.lastModified;
 
-        if (timeSinceLast < twentyFourHours) {
-            return { canRemove: false, timeLeft: twentyFourHours - timeSinceLast };
+        if (timeSinceLast < cooldown) {
+            return { canRemove: false, timeLeft: cooldown - timeSinceLast };
         }
 
         return { canRemove: true, timeLeft: null };
@@ -75,6 +86,27 @@ class LiyueCredits {
 
         // 3. Create a new Map from the sorted array of pairs.
          return new Map(mapEntries);
+    }
+
+    getCachedSettings(){
+        return settingsObject;
+    }
+
+    refreshSettingsFromDB(){
+        const settings = this.getSettingsStmt.get(1);
+        if(settings){
+            settingsObject = {cooldown: settings.cooldown, amountLimit: settings.amountLimit, negativeCredits: settings.negativeCredits};
+            console.log("Settings refreshed from the DB");
+        }
+    }
+
+    changeSettings(cooldown, amountLimit, negativeCredits){
+       const newCooldown = cooldown ? cooldown : settingsObject.cooldown;
+       const newAmountLimit = amountLimit ? amountLimit : settingsObject.amountLimit;
+       const newNegativeCredits = negativeCredits ? negativeCredits : settingsObject.negativeCredits;
+       this.changeSettingsStmt.run(1, newCooldown, newAmountLimit, newNegativeCredits);
+       console.log("Settings updated");
+       this.refreshSettingsFromDB();
     }
 
 
