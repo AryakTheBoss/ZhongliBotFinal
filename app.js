@@ -116,8 +116,8 @@ client.once('ready', async () => {
                     .setName('settings')
                     .setDescription('change settings for liyue credits')
                     .addIntegerOption(option => option.setName('cooldown').setDescription('The cooldown for remove').setRequired(false))
-                    .addIntegerOption(option => option.setName('amountLimit').setDescription('The amount limit for adding removing').setRequired(false))
-                    .addBooleanOption(option => option.setName('negativeCreditsAllowed').setDescription('allow negative values').setRequired(false)))
+                    .addIntegerOption(option => option.setName('amountlimit').setDescription('The amount limit for adding removing').setRequired(false))
+                    .addBooleanOption(option => option.setName('negativecreditsallowed').setDescription('allow negative values').setRequired(false)))
 
     ].map(command => command.toJSON());
 
@@ -290,8 +290,8 @@ client.on('interactionCreate', async interaction => {
                     return interaction.editReply({ content: "You don't have permission to edit settings", ephemeral: true });
                 }
                 const cooldown = interaction.options.getInteger('cooldown');
-                const amountLimit = interaction.options.getInteger('amountLimit');
-                const negativeCreditsAllowed = interaction.options.getBoolean('negativeCreditsAllowed');
+                const amountLimit = interaction.options.getInteger('amountlimit');
+                const negativeCreditsAllowed = interaction.options.getBoolean('negativecreditsallowed');
                 liyueCredits.changeSettings(cooldown, amountLimit, negativeCreditsAllowed);
             }
 
