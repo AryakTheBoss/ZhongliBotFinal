@@ -293,6 +293,7 @@ client.on('interactionCreate', async interaction => {
                 const amountLimit = interaction.options.getInteger('amountlimit');
                 const negativeCreditsAllowed = interaction.options.getBoolean('negativecreditsallowed');
                 liyueCredits.changeSettings(cooldown, amountLimit, negativeCreditsAllowed);
+                return interaction.editReply({ content: "Settings changed.", ephemeral: true });
             }
 
         }
