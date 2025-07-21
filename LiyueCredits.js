@@ -18,7 +18,7 @@ db.exec(`
         id INTEGER PRIMARY KEY,
         cooldown INTEGER,
         amountLimit INTEGER,
-        negativeCredits BOOL DEFAULT 0,
+        negativeCredits INTEGER DEFAULT 0
     )
 `);
 
@@ -95,7 +95,7 @@ class LiyueCredits {
     refreshSettingsFromDB(){
         const settings = this.getSettingsStmt.get(1);
         if(settings){
-            settingsObject = {cooldown: settings.cooldown, amountLimit: settings.amountLimit, negativeCredits: settings.negativeCredits};
+            settingsObject = {cooldown: settings.cooldown, amountLimit: settings.amountLimit, negativeCredits: settings.negativeCredits === 1};
             console.log("Settings refreshed from the DB");
         }
     }
@@ -104,7 +104,7 @@ class LiyueCredits {
        const newCooldown = cooldown ? cooldown : settingsObject.cooldown;
        const newAmountLimit = amountLimit ? amountLimit : settingsObject.amountLimit;
        const newNegativeCredits = negativeCredits ? negativeCredits : settingsObject.negativeCredits;
-       this.changeSettingsStmt.run(1, newCooldown, newAmountLimit, newNegativeCredits);
+       this.changeSettingsStmt.run(1, newCooldown, newAmountLimit, newNegativeCredits ? 1 : 0);
        console.log("Settings updated");
        this.refreshSettingsFromDB();
     }
