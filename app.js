@@ -116,7 +116,7 @@ client.once('ready', async () => {
                     .setName('settings')
                     .setDescription('change settings for liyue credits')
                     .addIntegerOption(option => option.setName('cooldown').setDescription('The cooldown for remove').setRequired(false))
-                    .addIntegerOption(option => option.setName('amountLimit').setDescription('The amount limit for adding/removing').setRequired(false))
+                    .addIntegerOption(option => option.setName('amountLimit').setDescription('The amount limit for adding removing').setRequired(false))
                     .addBooleanOption(option => option.setName('negativeCreditsAllowed').setDescription('allow negative values').setRequired(false)))
 
     ].map(command => command.toJSON());
