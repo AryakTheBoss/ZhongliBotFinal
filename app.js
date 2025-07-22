@@ -142,7 +142,7 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     const forbiddenWords = ['league of legends', 'league'];
-    const likedWords = ['coffie_wink', 'thigh', 'thighs'];
+    const likedWords = ['coffie_wink', 'thigh', 'thighs', 'liyue'];
     const messageContent = message.content.toLowerCase();
     const matchedWordMinus = forbiddenWords.find(word => messageContent.includes(word));
     const matchedWordPlus = likedWords.find(word => messageContent.includes(word));

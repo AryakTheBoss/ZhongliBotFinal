@@ -98,6 +98,11 @@ class LiyueCredits {
         return { canRemove: true, timeLeft: null };
     }
 
+    /**
+     * Gets the leaderboard of credit amounts for users in a specific guild.
+     * @param {string} guildId - The ID of the guild to get the leaderboard for.
+     * @returns {Map<string, number>} A map of user IDs to credit amounts, sorted in descending order by amount.
+     */
     getLeaderboard(guildId){
         const rows = this.getAllStmt.all();
         const result = new Map();
