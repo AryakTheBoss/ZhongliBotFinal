@@ -154,7 +154,7 @@ client.on('messageCreate', async message => {
 
         liyueCredits.removeCredits(userId, amount, guildId, true);
         await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
-    } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id)) {
+    } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
         const userId = message.author.id;
         const guildId = message.guild.id;
         const amount = Math.floor(Math.random() * (500 - 100 + 1)) + 100;

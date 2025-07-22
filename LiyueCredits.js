@@ -91,7 +91,6 @@ class LiyueCredits {
 
         const cooldown = 20 * 60 * 1000;
         const timeSinceLast = Date.now() - row.goodWordCd;
-console.log('millis since last:'+timeSinceLast+' Cooldown:'+cooldown);
         if (timeSinceLast < cooldown) {
             return { canRemove: false, timeLeft: cooldown - timeSinceLast };
         }
