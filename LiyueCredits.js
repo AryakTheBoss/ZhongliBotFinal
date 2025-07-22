@@ -85,6 +85,7 @@ class LiyueCredits {
      */
     canAddCreditsGoodWord(userId, guildId) {
         const row = this.getStmt.get(userId+SEPERATOR+guildId);
+        console.log('gw cd:'+row.goodWordCd);
         if (!row || !row.goodWordCd) {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
