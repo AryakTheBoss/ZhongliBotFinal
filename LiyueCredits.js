@@ -167,8 +167,8 @@ class LiyueCredits {
         const currentData = this.getUserData(userId, guildId);
         const newAmount = currentData.amount + amount;
         const now = !triggeredByGoodWord ? Date.now() : currentData.lastModifiedAdd;
-        // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now, !triggeredByGoodWord ? currentData.goodWordCd : now);
+        // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown 'INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd, goodWordCd) VALUES (?, ?, ?, ?, ?)'
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now, !triggeredByGoodWord ? currentData.goodWordCd : Date.now());
     }
 
     /**
