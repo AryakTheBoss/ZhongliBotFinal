@@ -11,7 +11,8 @@ db.exec(`
         compositeId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
         lastModified INTEGER,
-        lastModifiedAdd INTEGER
+        lastModifiedAdd INTEGER,
+        goodWordCd INTEGER
     )
 `);
 db.exec(`
@@ -25,8 +26,8 @@ db.exec(`
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd) VALUES (?, ?, ?, ?)');
-        this.getStmt = db.prepare('SELECT amount, lastModified, lastModifiedAdd FROM credits WHERE compositeId = ?');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd, goodWordCd) VALUES (?, ?, ?, ?)');
+        this.getStmt = db.prepare('SELECT amount, lastModified, lastModifiedAdd, goodWordCd FROM credits WHERE compositeId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits');
         this.getSettingsStmt = db.prepare('SELECT * FROM settings WHERE id = ?');
         this.changeSettingsStmt = db.prepare('INSERT OR REPLACE INTO settings (id, cooldown, amountLimit, negativeCredits) VALUES (?, ?, ?, ?)');
@@ -68,6 +69,28 @@ class LiyueCredits {
 
         const cooldown = settingsObject.cooldown;
         const timeSinceLast = Date.now() - row.lastModifiedAdd;
+
+        if (timeSinceLast < cooldown) {
+            return { canRemove: false, timeLeft: cooldown - timeSinceLast };
+        }
+
+        return { canRemove: true, timeLeft: null };
+    }
+
+    /**
+     * Checks if credits can be added from a user based on a cooldown.
+     * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
+     * @returns {{canRemove: boolean, timeLeft: number|null}} - An object indicating if removal is allowed and the time left if not.
+     */
+    canAddCreditsGoodWord(userId, guildId) {
+        const row = this.getStmt.get(userId+SEPERATOR+guildId);
+        if (!row || !row.goodWordCd) {
+            return { canRemove: true, timeLeft: null }; // No record or never modified
+        }
+
+        const cooldown = 20 * 60 * 1000;
+        const timeSinceLast = Date.now() - row.goodWordCd;
 
         if (timeSinceLast < cooldown) {
             return { canRemove: false, timeLeft: cooldown - timeSinceLast };
@@ -138,13 +161,14 @@ class LiyueCredits {
      * @param {string} userId - The ID of the user.
      * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to add.
+     * @param triggeredByGoodWord
      */
-    addCredits(userId, amount, guildId) {
+    addCredits(userId, amount, guildId, triggeredByGoodWord) {
         const currentData = this.getUserData(userId, guildId);
         const newAmount = currentData.amount + amount;
-        const now = Date.now();
+        const now = !triggeredByGoodWord ? Date.now() : currentData.lastModifiedAdd;
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now);
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now, !triggeredByGoodWord ? currentData.goodWordCd : now);
     }
 
     /**
@@ -153,12 +177,12 @@ class LiyueCredits {
      * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to remove.
      */
-    removeCredits(userId, amount, guildId) {
+    removeCredits(userId, amount, guildId, triggeredByBadWord) {
         const currentData = this.getUserData(userId, guildId);
         const currentCredits = this.checkCredits(userId, guildId);
         const newAmount = currentCredits - amount;
-        const now = Date.now();
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now, currentData.lastModifiedAdd);
+        const now = !triggeredByBadWord ? Date.now() : currentData.lastModified;
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now, currentData.lastModifiedAdd, currentData.goodWordCd);
     }
 
     /**

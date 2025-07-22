@@ -152,14 +152,14 @@ client.on('messageCreate', async message => {
         const guildId = message.guild.id;
         const amount = Math.floor(Math.random() * (50000 - 5000 + 1)) + 5000;
 
-        liyueCredits.removeCredits(userId, amount, guildId);
+        liyueCredits.removeCredits(userId, amount, guildId, true);
         await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
-    } else if (matchedWordPlus) {
+    } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id)) {
         const userId = message.author.id;
         const guildId = message.guild.id;
         const amount = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
 
-        liyueCredits.addCredits(userId, amount, guildId);
+        liyueCredits.addCredits(userId, amount, guildId, true);
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
     }
 });
@@ -268,7 +268,7 @@ client.on('interactionCreate', async interaction => {
                 if(amount < 0 && !settings.negativeCredits){
                     return interaction.editReply({ content: "You can't remove negative numbers, use add command instead!", ephemeral: true });
                 }
-                liyueCredits.removeCredits(user.id, amount, interaction.guild.id);
+                liyueCredits.removeCredits(user.id, amount, interaction.guild.id, false);
                 return interaction.editReply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
 
             } else if(subcommand === 'add'){
@@ -291,7 +291,7 @@ client.on('interactionCreate', async interaction => {
                 if(amount < 0 && !settings.negativeCredits){
                     return interaction.editReply({ content: "You can't add negative numbers, use remove command instead!", ephemeral: true });
                 }
-                liyueCredits.addCredits(user.id, amount, interaction.guild.id);
+                liyueCredits.addCredits(user.id, amount, interaction.guild.id, false);
                 return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
 
             } else if(subcommand === 'check'){
