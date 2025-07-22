@@ -85,14 +85,13 @@ class LiyueCredits {
      */
     canAddCreditsGoodWord(userId, guildId) {
         const row = this.getStmt.get(userId+SEPERATOR+guildId);
-        console.log('gw cd:'+row.goodWordCd);
         if (!row || !row.goodWordCd) {
             return { canRemove: true, timeLeft: null }; // No record or never modified
         }
 
         const cooldown = 20 * 60 * 1000;
         const timeSinceLast = Date.now() - row.goodWordCd;
-
+console.log('millis since last:'+timeSinceLast);
         if (timeSinceLast < cooldown) {
             return { canRemove: false, timeLeft: cooldown - timeSinceLast };
         }
