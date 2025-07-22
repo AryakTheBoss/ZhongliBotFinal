@@ -26,7 +26,7 @@ db.exec(`
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd, goodWordCd) VALUES (?, ?, ?, ?)');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd, goodWordCd) VALUES (?, ?, ?, ?, ?)');
         this.getStmt = db.prepare('SELECT amount, lastModified, lastModifiedAdd, goodWordCd FROM credits WHERE compositeId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits');
         this.getSettingsStmt = db.prepare('SELECT * FROM settings WHERE id = ?');
