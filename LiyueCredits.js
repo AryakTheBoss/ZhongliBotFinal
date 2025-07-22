@@ -10,7 +10,8 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS credits (
         compositeId TEXT PRIMARY KEY,
         amount INTEGER NOT NULL DEFAULT 1000,
-        lastModified INTEGER
+        lastModified INTEGER,
+        lastModifiedAdd INTEGER
     )
 `);
 db.exec(`
@@ -24,8 +25,8 @@ db.exec(`
 
 class LiyueCredits {
     constructor() {
-        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified) VALUES (?, ?, ?)');
-        this.getStmt = db.prepare('SELECT amount, lastModified FROM credits WHERE compositeId = ?');
+        this.addStmt = db.prepare('INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd) VALUES (?, ?, ?, ?)');
+        this.getStmt = db.prepare('SELECT amount, lastModified, lastModifiedAdd FROM credits WHERE compositeId = ?');
         this.getAllStmt = db.prepare('SELECT * FROM credits');
         this.getSettingsStmt = db.prepare('SELECT * FROM settings WHERE id = ?');
         this.changeSettingsStmt = db.prepare('INSERT OR REPLACE INTO settings (id, cooldown, amountLimit, negativeCredits) VALUES (?, ?, ?, ?)');
@@ -45,6 +46,28 @@ class LiyueCredits {
 
         const cooldown = settingsObject.cooldown;
         const timeSinceLast = Date.now() - row.lastModified;
+
+        if (timeSinceLast < cooldown) {
+            return { canRemove: false, timeLeft: cooldown - timeSinceLast };
+        }
+
+        return { canRemove: true, timeLeft: null };
+    }
+
+    /**
+     * Checks if credits can be added from a user based on a cooldown.
+     * @param {string} userId - The ID of the user.
+     * @param {string} guildId - The ID of the guild.
+     * @returns {{canRemove: boolean, timeLeft: number|null}} - An object indicating if removal is allowed and the time left if not.
+     */
+    canAddCredits(userId, guildId) {
+        const row = this.getStmt.get(userId+SEPERATOR+guildId);
+        if (!row || !row.lastModifiedAdd) {
+            return { canRemove: true, timeLeft: null }; // No record or never modified
+        }
+
+        const cooldown = settingsObject.cooldown;
+        const timeSinceLast = Date.now() - row.lastModifiedAdd;
 
         if (timeSinceLast < cooldown) {
             return { canRemove: false, timeLeft: cooldown - timeSinceLast };
@@ -119,8 +142,9 @@ class LiyueCredits {
     addCredits(userId, amount, guildId) {
         const currentData = this.getUserData(userId, guildId);
         const newAmount = currentData.amount + amount;
+        const now = Date.now();
         // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified);
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now);
     }
 
     /**
@@ -130,10 +154,11 @@ class LiyueCredits {
      * @param {number} amount - The amount of credits to remove.
      */
     removeCredits(userId, amount, guildId) {
+        const currentData = this.getUserData(userId, guildId);
         const currentCredits = this.checkCredits(userId, guildId);
         const newAmount = currentCredits - amount;
         const now = Date.now();
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now);
+        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now, currentData.lastModifiedAdd);
     }
 
     /**
@@ -155,7 +180,7 @@ class LiyueCredits {
      */
     getUserData(userId, guildId) {
         const row = this.getStmt.get(userId+SEPERATOR+guildId);
-        return row || { amount: 1000, lastModified: null }; // Return 1000 for new users
+        return row || { amount: 1000, lastModified: null, lastModifiedAdd: null }; // Return 1000 for new users
     }
 }
 

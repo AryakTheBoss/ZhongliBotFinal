@@ -283,6 +283,11 @@ client.on('interactionCreate', async interaction => {
                 if(amount > settings.amountLimit && settings.amountLimit !== -1){
                     return interaction.editReply({ content: `You can't add more than ${settings.amountLimit} liyue credits at a time!`, ephemeral: true });
                 }
+                const cooldownStatus = liyueCredits.canAddCredits(user.id, interaction.guild.id);
+                if(!cooldownStatus.canRemove){
+                    const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
+                    return interaction.editReply({ content: `You cannot add credits to ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
+                }
                 if(amount < 0 && !settings.negativeCredits){
                     return interaction.editReply({ content: "You can't add negative numbers, use remove command instead!", ephemeral: true });
                 }
