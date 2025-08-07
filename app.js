@@ -36,6 +36,16 @@ function formatTimeLeft(ms) {
     return `${hours}h ${minutes}m`;
 }
 
+function removeMDfromUsername(username) {
+    // The regex finds any of the characters inside the brackets []
+    // The 'g' flag ensures it replaces all occurrences, not just the first one
+    const markdownSymbols = '/[_*~`|>/g';
+
+  // '$&' in the replacement string inserts the character that was matched.
+  // We add a '\\' before it to escape it.
+  return username.replace(markdownSymbols, '\\$&');
+}
+
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -142,8 +152,8 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     //TODO add these words as database tables and add command to add and remove them at will
-    const forbiddenWords = ['league of legends', 'league'];
-    const likedWords = ['coffie_wink', 'thigh', 'thighs', 'liyue', 'teriderp'];
+    const forbiddenWords = ['league of legends', 'league', 'fav', 'favonius'];
+    const likedWords = ['coffie_wink', 'thigh', 'thighs', 'liyue', 'teriderp', 'yelan', 'kafka'];
     const messageContent = message.content.toLowerCase();
     const matchedWordMinus = forbiddenWords.find(word => messageContent.includes(word));
     const matchedWordPlus = likedWords.find(word => messageContent.includes(word));
@@ -158,7 +168,7 @@ client.on('messageCreate', async message => {
     } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+        const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 1500;
 
         liyueCredits.addCredits(userId, amount, guildId, true);
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
@@ -311,7 +321,8 @@ client.on('interactionCreate', async interaction => {
                     try {
                         // Asynchronously fetch the user object from the ID
                         const user = await client.users.fetch(userId);
-                        stringBoard += `${rank}: ${user.username} \\~\\~ ${amount}\n`;
+                        const username = removeMDfromUsername(user.username);
+                        stringBoard += `${rank}: ${username} \\~\\~ ${amount}\n`;
                     } catch (error) {
                         console.error(`Could not find user with ID: ${userId}`);
                     }
