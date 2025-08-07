@@ -37,13 +37,7 @@ function formatTimeLeft(ms) {
 }
 
 function removeMDfromUsername(username) {
-    // The regex finds any of the characters inside the brackets []
-    // The 'g' flag ensures it replaces all occurrences, not just the first one
-    const markdownSymbols = '/[_*~`|>/g';
-
-  // '$&' in the replacement string inserts the character that was matched.
-  // We add a '\\' before it to escape it.
-  return username.replace(markdownSymbols, '\\$&');
+   return username.replaceAll('_','\\_').replaceAll('*', '\\*');
 }
 
 // When the client is ready, run this code (only once)
