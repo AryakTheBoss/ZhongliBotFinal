@@ -162,7 +162,7 @@ client.on('messageCreate', async message => {
     } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 1500;
+        const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 100;
 
         liyueCredits.addCredits(userId, amount, guildId, true);
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
