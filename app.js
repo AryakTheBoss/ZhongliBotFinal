@@ -149,8 +149,8 @@ client.on('messageCreate', async message => {
     const forbiddenWords = ['league of legends', 'league', 'favonius', 'fav'];
     const likedWords = ['coffie_wink', 'kafka', 'thighs', 'thigh', 'liyue', 'teriderp', 'yelan'];
     const messageContent = message.content.toLowerCase();
-    const matchedWordMinus = forbiddenWords.find(word => messageContent.search('\\b'+word+'\\b'));
-    const matchedWordPlus = likedWords.find(word => messageContent.search('\\b'+word+'\\b'));
+    const matchedWordMinus = forbiddenWords.find(word => messageContent.search('\\b'+word+'\\b') !== -1);
+    const matchedWordPlus = likedWords.find(word => messageContent.search('\\b'+word+'\\b') !== -1);
 
     if (matchedWordMinus) {
         const userId = message.author.id;
