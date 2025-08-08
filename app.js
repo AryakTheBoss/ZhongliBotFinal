@@ -28,6 +28,7 @@ const liyueCredits = new LiyueCredits();
 
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
+const gambleOptions = ['20x - 0.1% winrate', '15x - 0.2% winrate', '10x - 0.4% winrate', '5x - 0.8% winrate', '2x - 1.6% winrate', '1.5x - 3.2% winrate'];
 
 function formatTimeLeft(ms) {
     const totalSeconds = Math.ceil(ms / 1000);
@@ -38,6 +39,10 @@ function formatTimeLeft(ms) {
 
 function removeMDfromUsername(username) {
    return username.replaceAll('_','\\_').replaceAll('*', '\\*');
+}
+
+function getRandomInt(lower, upper) {
+    return Math.floor(Math.random() * (upper - lower + 1)) + lower;
 }
 
 // When the client is ready, run this code (only once)
@@ -67,7 +72,6 @@ client.once('ready', async () => {
     } catch (error) {
         console.error('Failed to authenticate with Character.ai:', error);
     }
-
 
     const commands = [
         new SlashCommandBuilder()
@@ -109,9 +113,16 @@ client.once('ready', async () => {
                     .addIntegerOption(option => option.setName('amount').setDescription('The amount to credit').setRequired(true)))
             .addSubcommand(subcommand =>
                 subcommand
+                    .setName('gamble')
+                    .setDescription('gamble your own credits. max bet is full balance')
+                    .addStringOption(option => option.setName('multiplier').setDescription('The multiplier if you win').setRequired(true).setChoices(gambleOptions))
+                    .addBooleanOption(option => option.setName('double-odds').setDescription('doubles the odds of winning but the multiplier also applies to your losses').setRequired(false))
+                    .addIntegerOption(option => option.setName('wager').setDescription('The amount to wager').setRequired(true)))
+            .addSubcommand(subcommand =>
+                subcommand
                     .setName('check')
                     .setDescription('check liyue credits of a user')
-                    .addUserOption(option => option.setName('user').setDescription('The user to discredit').setRequired(false)))
+                    .addUserOption(option => option.setName('user').setDescription('The user to check').setRequired(false)))
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('leaderboard')
@@ -155,7 +166,7 @@ client.on('messageCreate', async message => {
     if (matchedWordMinus) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = Math.floor(Math.random() * (50000 - 5000 + 1)) + 5000;
+        const amount = getRandomInt(5000, 50000);
 
         liyueCredits.removeCredits(userId, amount, guildId, true);
         if(message.guild.id === '961701527096021042'){ //These people are so unfun :(
@@ -168,7 +179,7 @@ client.on('messageCreate', async message => {
     } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
         const userId = message.author.id;
         const guildId = message.guild.id;
-        const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 100;
+        const amount = getRandomInt(100, 1500);
 
         liyueCredits.addCredits(userId, amount, guildId, true);
         if(message.guild.id === '961701527096021042'){ //These people are so unfun :(
@@ -310,6 +321,26 @@ client.on('interactionCreate', async interaction => {
                 }
                 liyueCredits.addCredits(user.id, amount, interaction.guild.id, false);
                 return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
+
+            } else if (subcommand === 'gamble') {
+                const user = interaction.user;
+                const balance = liyueCredits.checkCredits(user.id, interaction.guild.id);
+                const wager = interaction.options.getInteger('wager');
+                const multiplier = interaction.options.getString('multiplier');
+                const doubleOdds = interaction.options.getBoolean('double-odds');
+                if(balance < 1){
+                    return interaction.editReply({ content: "In terms of mora, you have no mora lol", ephemeral: true });
+                }
+                if(!gambleOptions.includes(multiplier)){
+                    return interaction.editReply({ content: "The multiplier is not valid, pick from the list of choices", ephemeral: true });
+                }
+                if(wager > balance){
+                    return interaction.editReply({ content: "Your wager cannot be higher than your credits balance", ephemeral: true });
+                }
+                if(wager <= 0){
+                    return interaction.editReply({ content: "You cannot wager negative or 0", ephemeral: true });
+                }
+                const multiplierNumber = parseFloat(multiplier.match("(?:\\d+(?:\\.\\d+)?|\\.\\d+)x")[0].replace("x", ""));
 
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
