@@ -346,7 +346,7 @@ client.on('interactionCreate', async interaction => {
                     return interaction.editReply({ content: "You cannot wager negative or 0", ephemeral: true });
                 }
                 const multiplierNumber = parseFloat(multiplier.replace("x", ""));
-                const odds = Math.pow(2, gambleOptions.indexOf(multiplier)) * 0.1;
+                const odds = Math.pow(2, gambleOptions.findIndex(str => str.value === multiplier)) * 0.1;
                 liyueCredits.removeCredits(user.id, wager, interaction.guild.id, false); //Take the wager
 
                 const potentialwinnings = wager * multiplierNumber;
