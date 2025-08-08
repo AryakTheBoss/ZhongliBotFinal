@@ -339,14 +339,13 @@ client.on('interactionCreate', async interaction => {
                 if(balance < 1){
                     return interaction.editReply({ content: "In terms of mora, you have no mora lol", ephemeral: true });
                 }
-
                 if(wager > balance){
                     return interaction.editReply({ content: "Your wager cannot be higher than your credits balance", ephemeral: true });
                 }
                 if(wager <= 0){
                     return interaction.editReply({ content: "You cannot wager negative or 0", ephemeral: true });
                 }
-                const multiplierNumber = parseFloat(multiplier.match("(?:\\d+(?:\\.\\d+)?|\\.\\d+)x")[0].replace("x", ""));
+                const multiplierNumber = parseFloat(multiplier.replace("x", ""));
                 const odds = Math.pow(2, gambleOptions.indexOf(multiplier)) * 0.1;
                 liyueCredits.removeCredits(user.id, wager, interaction.guild.id, false); //Take the wager
 
@@ -365,7 +364,7 @@ client.on('interactionCreate', async interaction => {
                         liyueCredits.addCredits(user.id, potentialwinnings, interaction.guild.id, false);
                         return interaction.editReply({ content: `You won the roll!! and got ${potentialwinnings} liyue credits.`, ephemeral: true });
                     }
-                    return interaction.editReply({ content: `You lost the roll and lost ${potentialwinnings} liyue credits.`, ephemeral: true });
+                    return interaction.editReply({ content: `You lost the roll and lost ${wager} liyue credits.`, ephemeral: true });
                 }
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
