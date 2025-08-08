@@ -147,7 +147,7 @@ client.on('messageCreate', async message => {
 
     //TODO add these words as database tables and add command to add and remove them at will
     const forbiddenWords = ['league of legends', 'league', 'favonius', 'fav', 'energy recharge', 'er'];
-    const likedWords = ['coffie_wink', 'kafka', 'thighs', 'thigh', 'liyue', 'teriderp', 'yelan'];
+    const likedWords = ['coffie_wink', 'kafka', 'thigh', 'liyue', 'teriderp', 'yelan'];
     const messageContent = message.content.toLowerCase();
     const matchedWordMinus = forbiddenWords.find(word => messageContent.toLowerCase().search('\\b'+word+'\\b') !== -1);
     const matchedWordPlus = likedWords.find(word => messageContent.toLowerCase().search('\\b'+word+'\\b') !== -1);
@@ -158,6 +158,13 @@ client.on('messageCreate', async message => {
         const amount = Math.floor(Math.random() * (50000 - 5000 + 1)) + 5000;
 
         liyueCredits.removeCredits(userId, amount, guildId, true);
+        if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
+            if(message.channel.id === '1018936077723127948'){
+                await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
+            } else {
+                return;
+            }
+        }
         await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
     } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
         const userId = message.author.id;
@@ -165,6 +172,13 @@ client.on('messageCreate', async message => {
         const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 100;
 
         liyueCredits.addCredits(userId, amount, guildId, true);
+        if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
+            if(message.channel.id === '1018936077723127948' && matchedWordPlus !== 'thigh'){
+                await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
+            } else {
+                return;
+            }
+        }
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
     }
 });
