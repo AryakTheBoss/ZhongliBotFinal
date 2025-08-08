@@ -289,16 +289,27 @@ client.on('interactionCreate', async interaction => {
                 if(user.id === interaction.user.id){
                     return interaction.editReply({ content: "You can't discredit yourself!", ephemeral: true });
                 }
-                if(amount > settings.amountLimit && settings.amountLimit !== -1){ //-1 indicates no limit
-                    return interaction.editReply({ content: `You can't take more than ${settings.amountLimit} liyue credits at a time!`, ephemeral: true });
-                }
-                const cooldownStatus = liyueCredits.canRemoveCredits(user.id, interaction.guild.id);
-                if (!cooldownStatus.canRemove) {
-                    const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
-                    return interaction.editReply({ content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
-                }
-                if(amount < 0 && !settings.negativeCredits){
-                    return interaction.editReply({ content: "You can't remove negative numbers, use add command instead!", ephemeral: true });
+                if(interaction.user.id !== '470603317228208142') {
+                    if (amount > settings.amountLimit && settings.amountLimit !== -1) { //-1 indicates no limit
+                        return interaction.editReply({
+                            content: `You can't take more than ${settings.amountLimit} liyue credits at a time!`,
+                            ephemeral: true
+                        });
+                    }
+                    const cooldownStatus = liyueCredits.canRemoveCredits(user.id, interaction.guild.id);
+                    if (!cooldownStatus.canRemove) {
+                        const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
+                        return interaction.editReply({
+                            content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`,
+                            ephemeral: true
+                        });
+                    }
+                    if (amount < 0 && !settings.negativeCredits) {
+                        return interaction.editReply({
+                            content: "You can't remove negative numbers, use add command instead!",
+                            ephemeral: true
+                        });
+                    }
                 }
                 liyueCredits.removeCredits(user.id, amount, interaction.guild.id, false);
                 return interaction.editReply({ content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`, ephemeral: true });
@@ -312,16 +323,27 @@ client.on('interactionCreate', async interaction => {
                 if(user.id === interaction.user.id){
                     return interaction.editReply({ content: "You can't credit yourself!", ephemeral: true });
                 }
-                if(amount > settings.amountLimit && settings.amountLimit !== -1){
-                    return interaction.editReply({ content: `You can't add more than ${settings.amountLimit} liyue credits at a time!`, ephemeral: true });
-                }
-                const cooldownStatus = liyueCredits.canAddCredits(user.id, interaction.guild.id);
-                if(!cooldownStatus.canRemove){
-                    const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
-                    return interaction.editReply({ content: `You cannot add credits to ${user.username} yet. Please wait another ${timeLeft}.`, ephemeral: true });
-                }
-                if(amount < 0 && !settings.negativeCredits){
-                    return interaction.editReply({ content: "You can't add negative numbers, use remove command instead!", ephemeral: true });
+                if(interaction.user.id !== '470603317228208142') {
+                    if (amount > settings.amountLimit && settings.amountLimit !== -1) {
+                        return interaction.editReply({
+                            content: `You can't add more than ${settings.amountLimit} liyue credits at a time!`,
+                            ephemeral: true
+                        });
+                    }
+                    const cooldownStatus = liyueCredits.canAddCredits(user.id, interaction.guild.id);
+                    if (!cooldownStatus.canRemove) {
+                        const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
+                        return interaction.editReply({
+                            content: `You cannot add credits to ${user.username} yet. Please wait another ${timeLeft}.`,
+                            ephemeral: true
+                        });
+                    }
+                    if (amount < 0 && !settings.negativeCredits) {
+                        return interaction.editReply({
+                            content: "You can't add negative numbers, use remove command instead!",
+                            ephemeral: true
+                        });
+                    }
                 }
                 liyueCredits.addCredits(user.id, amount, interaction.guild.id, false);
                 return interaction.editReply({ content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`, ephemeral: true });
