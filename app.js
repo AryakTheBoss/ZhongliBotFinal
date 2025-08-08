@@ -328,10 +328,6 @@ client.on('interactionCreate', async interaction => {
 
             } else if (subcommand === 'gamble') {
                 const user = interaction.user;
-                //TODO: temporary
-                if(user.id !== '144828640146882560'){
-                    return interaction.editReply({ content: "This feature is in testing, you cannot use it", ephemeral: true });
-                }
                 const balance = liyueCredits.checkCredits(user.id, interaction.guild.id);
                 const wager = interaction.options.getInteger('wager');
                 const multiplier = interaction.options.getString('multiplier');
