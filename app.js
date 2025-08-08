@@ -350,7 +350,7 @@ client.on('interactionCreate', async interaction => {
                 liyueCredits.removeCredits(user.id, wager, interaction.guild.id, false); //Take the wager
 
                 const potentialwinnings = wager * multiplierNumber;
-                console.log("Gambling for: "+potentialwinnings+" Odds: "+doubleOdds ? odds*2 : odds+"% Double Odds: "+doubleOdds+" Multiplier: "+multiplierNumber+"");
+                console.log("Gambling for: "+potentialwinnings+" Odds: "+(doubleOdds ? odds*2 : odds)+"% Double Odds: "+doubleOdds+" Multiplier: "+multiplierNumber+"");
                 if(doubleOdds){
                     if(getChance(odds*2)){
                         liyueCredits.addCredits(user.id, potentialwinnings, interaction.guild.id, false);
