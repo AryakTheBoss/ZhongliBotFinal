@@ -158,7 +158,7 @@ client.on('messageCreate', async message => {
         const amount = Math.floor(Math.random() * (50000 - 5000 + 1)) + 5000;
 
         liyueCredits.removeCredits(userId, amount, guildId, true);
-        if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
+        if(message.guild.id === '961701527096021042'){ //These people are so unfun :(
             if(message.channel.id === '1018936077723127948'){
                 await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
             }
@@ -171,7 +171,7 @@ client.on('messageCreate', async message => {
         const amount = Math.floor(Math.random() * (1500 - 100 + 1)) + 100;
 
         liyueCredits.addCredits(userId, amount, guildId, true);
-        if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
+        if(message.guild.id === '961701527096021042'){ //These people are so unfun :(
             if(message.channel.id === '1018936077723127948' && matchedWordPlus !== 'thigh'){
                 await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
             }
