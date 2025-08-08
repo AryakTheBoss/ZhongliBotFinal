@@ -28,7 +28,7 @@ const liyueCredits = new LiyueCredits();
 
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
-const gambleOptions = ['20x - 0.1% winrate', '15x - 0.2% winrate', '10x - 0.4% winrate', '5x - 0.8% winrate', '2x - 1.6% winrate', '1.5x - 3.2% winrate'];
+const gambleOptions = [{name: '20x - 0.1% winrate', value: '20x'}, {name: '15x - 0.2% winrate', value: '15x'}, {name: '10x - 0.4% winrate', value: '10x'}, {name: '5x - 0.8% winrate', value: '5x'}, {name: '2x - 1.6% winrate', value: '2x'}, {name: '1.5x - 3.2% winrate', value: '1.5x'}];
 
 function formatTimeLeft(ms) {
     const totalSeconds = Math.ceil(ms / 1000);
@@ -119,8 +119,8 @@ client.once('ready', async () => {
                 subcommand
                     .setName('gamble')
                     .setDescription('gamble your own credits. max bet is full balance')
-                    .addStringOption(option => option.setName('multiplier').setDescription('The multiplier if you win').setRequired(true).setChoices(gambleOptions))
-                    .addBooleanOption(option => option.setName('double-odds').setDescription('doubles the odds of winning but the multiplier also applies to your losses').setRequired(false))
+                    .addStringOption(option => option.setName('multiplier').setDescription('The multiplier if you win').setRequired(true).setChoices(...gambleOptions))
+                    .addBooleanOption(option => option.setName('double-odds').setDescription('doubles the odds of winning but the multiplier also applies to your losses').setRequired(true))
                     .addIntegerOption(option => option.setName('wager').setDescription('The amount to wager').setRequired(true)))
             .addSubcommand(subcommand =>
                 subcommand
@@ -339,9 +339,7 @@ client.on('interactionCreate', async interaction => {
                 if(balance < 1){
                     return interaction.editReply({ content: "In terms of mora, you have no mora lol", ephemeral: true });
                 }
-                if(!gambleOptions.includes(multiplier)){
-                    return interaction.editReply({ content: "The multiplier is not valid, pick from the list of choices", ephemeral: true });
-                }
+
                 if(wager > balance){
                     return interaction.editReply({ content: "Your wager cannot be higher than your credits balance", ephemeral: true });
                 }
