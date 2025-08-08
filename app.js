@@ -28,7 +28,7 @@ const liyueCredits = new LiyueCredits();
 
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
-const gambleOptions = [{name: '20x - 0.1% winrate', value: '20x'}, {name: '15x - 0.2% winrate', value: '15x'}, {name: '10x - 0.4% winrate', value: '10x'}, {name: '5x - 0.8% winrate', value: '5x'}, {name: '2x - 1.6% winrate', value: '2x'}, {name: '1.5x - 3.2% winrate', value: '1.5x'}];
+const gambleOptions = [{name: '20x - 0.3% winrate', value: '20x'}, {name: '15x - 0.6% winrate', value: '15x'}, {name: '10x - 1.2% winrate', value: '10x'}, {name: '5x - 2.4% winrate', value: '5x'}, {name: '2x - 4.8% winrate', value: '2x'}, {name: '1.5x - 9.6% winrate', value: '1.5x'}];
 
 function formatTimeLeft(ms) {
     const totalSeconds = Math.ceil(ms / 1000);
