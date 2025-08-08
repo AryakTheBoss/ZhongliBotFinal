@@ -45,6 +45,10 @@ function getRandomInt(lower, upper) {
     return Math.floor(Math.random() * (upper - lower + 1)) + lower;
 }
 
+function getChance(percentage) {
+    return Math.random() * 100 < percentage;
+}
+
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -324,6 +328,10 @@ client.on('interactionCreate', async interaction => {
 
             } else if (subcommand === 'gamble') {
                 const user = interaction.user;
+                //TODO: temporary
+                if(user.id !== '144828640146882560'){
+                    return interaction.editReply({ content: "This feature is in testing, you cannot use it", ephemeral: true });
+                }
                 const balance = liyueCredits.checkCredits(user.id, interaction.guild.id);
                 const wager = interaction.options.getInteger('wager');
                 const multiplier = interaction.options.getString('multiplier');
@@ -341,7 +349,26 @@ client.on('interactionCreate', async interaction => {
                     return interaction.editReply({ content: "You cannot wager negative or 0", ephemeral: true });
                 }
                 const multiplierNumber = parseFloat(multiplier.match("(?:\\d+(?:\\.\\d+)?|\\.\\d+)x")[0].replace("x", ""));
+                const odds = Math.pow(2, gambleOptions.indexOf(multiplier)) * 0.1;
+                liyueCredits.removeCredits(user.id, wager, interaction.guild.id, false); //Take the wager
 
+                const potentialwinnings = wager * multiplierNumber;
+                console.log("Gambling for: "+potentialwinnings+" Odds: "+odds+"% Double Odds: "+doubleOdds+" Multiplier: "+multiplierNumber+"");
+                if(doubleOdds){
+                    if(getChance(odds*2)){
+                        liyueCredits.addCredits(user.id, potentialwinnings, interaction.guild.id, false);
+                        return interaction.editReply({ content: `You won the double-odds roll!! and got ${potentialwinnings} liyue credits.`, ephemeral: true });
+                    }
+                    liyueCredits.removeCredits(user.id, (potentialwinnings) - wager, interaction.guild.id, false);
+                    return interaction.editReply({ content: `You lost the double-odds roll and lost ${potentialwinnings} liyue credits.`, ephemeral: true });
+
+                } else {
+                    if(getChance(odds)){
+                        liyueCredits.addCredits(user.id, potentialwinnings, interaction.guild.id, false);
+                        return interaction.editReply({ content: `You won the roll!! and got ${potentialwinnings} liyue credits.`, ephemeral: true });
+                    }
+                    return interaction.editReply({ content: `You lost the roll and lost ${potentialwinnings} liyue credits.`, ephemeral: true });
+                }
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
                 const credits = liyueCredits.checkCredits(user.id, interaction.guild.id);
