@@ -161,9 +161,8 @@ client.on('messageCreate', async message => {
         if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
             if(message.channel.id === '1018936077723127948'){
                 await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
-            } else {
-                return;
             }
+            return;
         }
         await message.reply(`You mentioned ${matchedWordMinus}! You lose ${amount} Liyue credits.`);
     } else if (matchedWordPlus && liyueCredits.canAddCreditsGoodWord(message.author.id, message.guild.id).canRemove) {
@@ -175,9 +174,8 @@ client.on('messageCreate', async message => {
         if(message.guild.id === '961701527096021042'){ //These people are so unfun and shatter like glass holy shit
             if(message.channel.id === '1018936077723127948' && matchedWordPlus !== 'thigh'){
                 await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
-            } else {
-                return;
             }
+            return;
         }
         await message.reply(`You mentioned ${matchedWordPlus}! You get ${amount} Liyue credits.`);
     }
