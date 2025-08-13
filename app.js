@@ -134,7 +134,7 @@ client.once('ready', async () => {
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('earthquake')
-                    .setDescription('causes an earthquake to the leaderboard. cost: 40000 credits'))
+                    .setDescription('causes an earthquake to the leaderboard. cost: 200,000 credits'))
             .addSubcommand(subcommand =>
                 subcommand
                     .setName('settings')
