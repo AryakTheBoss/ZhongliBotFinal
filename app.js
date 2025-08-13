@@ -25,6 +25,7 @@ const client = new Client({
 
 client.games = new Collection();
 const liyueCredits = new LiyueCredits();
+const usernameCache = new Map();
 
 // Initialize the CharacterAI client
 var characterAI = new CharacterAI();
@@ -402,10 +403,16 @@ client.on('interactionCreate', async interaction => {
                 // Iterate through the sorted map of [userId, score]
                 for (const [userId, amount] of board.entries()) {
                     try {
-                        // Asynchronously fetch the user object from the ID
-                        const user = await client.users.fetch(userId);
-                        const username = removeMDfromUsername(user.username);
-                        stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
+                        // Asynchronously fetch the user object from the ID if its not in the cache
+                        if(!usernameCache.has(userId)) {
+                            const user = await client.users.fetch(userId);
+                            const username = removeMDfromUsername(user.username);
+                            usernameCache.set(userId, username);
+                            stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
+                        } else {
+                            const username = usernameCache.get(userId);
+                            stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
+                        }
                     } catch (error) {
                         console.error(`Could not find user with ID: ${userId}`);
                     }
