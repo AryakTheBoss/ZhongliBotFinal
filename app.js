@@ -133,6 +133,10 @@ client.once('ready', async () => {
                     .setDescription('check liyue credits board'))
             .addSubcommand(subcommand =>
                 subcommand
+                    .setName('earthquake')
+                    .setDescription('causes an earthquake to the leaderboard. cost: 40000 credits'))
+            .addSubcommand(subcommand =>
+                subcommand
                     .setName('settings')
                     .setDescription('change settings for liyue credits')
                     .addIntegerOption(option => option.setName('cooldown').setDescription('The cooldown for remove').setRequired(false))
@@ -387,7 +391,7 @@ client.on('interactionCreate', async interaction => {
             } else if(subcommand === 'check'){
                 const user = interaction.options.getUser('user') || interaction.user;
                 const credits = liyueCredits.checkCredits(user.id, interaction.guild.id);
-                return interaction.editReply({ content: `${user.username} has ${credits} Liyue credits.`, ephemeral: true });
+                return interaction.editReply({ content: `${user.username} has ${credits.toLocaleString('en-US')} Liyue credits.`, ephemeral: true });
             } else if(subcommand === 'leaderboard'){
                 const board = liyueCredits.getLeaderboard(interaction.guild.id);
                 if(board.size === 0){
@@ -401,13 +405,37 @@ client.on('interactionCreate', async interaction => {
                         // Asynchronously fetch the user object from the ID
                         const user = await client.users.fetch(userId);
                         const username = removeMDfromUsername(user.username);
-                        stringBoard += `${rank}: ${username} \\~\\~ ${amount}\n`;
+                        stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
                     } catch (error) {
                         console.error(`Could not find user with ID: ${userId}`);
                     }
                     rank++;
                 }
                 return interaction.editReply({ content: stringBoard, ephemeral: true });
+            } else if(subcommand === 'earthquake'){
+                const board = liyueCredits.getLeaderboard(interaction.guild.id);
+                const user = interaction.user;
+                const balance = liyueCredits.checkCredits(user.id, interaction.guild.id);
+                if(board.size === 0){
+                    return interaction.editReply({ content: "No records found in Database.", ephemeral: true });
+                }
+                if(balance < 200000){
+                    return interaction.editReply({ content: "You need 200,000 credits to cause an earthquake!", ephemeral: true });
+                }
+                //take the fee
+                liyueCredits.removeCredits(user.id, 200000, interaction.guild.id, false);
+
+                // Iterate through the sorted map of [userId, score]
+                for (const [userId, amount] of board.entries()) {
+                    if(getChance(50)){ //will this person be affected?
+                        if(getChance(50)){ //negative or positive
+                            liyueCredits.addCredits(userId, getRandomInt(10000, 500000), interaction.guild.id, false);
+                        } else {
+                            liyueCredits.removeCredits(userId, getRandomInt(10000, 500000), interaction.guild.id, false);
+                        }
+                    }
+                }
+                return interaction.editReply({ content: "Earthquake! some credits have been shaken up!", ephemeral: true });
             } else if(subcommand === 'settings'){
                 if(interaction.user.id !== '144828640146882560'){
                     return interaction.editReply({ content: "You don't have permission to edit settings", ephemeral: true });
