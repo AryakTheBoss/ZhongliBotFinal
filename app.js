@@ -50,24 +50,25 @@ function getChance(percentage) {
     return Math.random() * 100 < percentage;
 }
 
-async function getLeaderboardString(board) {
-    let stringBoard = "--- Leaderboard ---\n";
-    let rank = 1;
-    // Iterate through the sorted map of [userId, score]
-    for (const [userId, amount] of board.entries()) {
+async function getLeaderboardPageString(board, page, itemsPerPage) {
+    let stringBoard = `--- Leaderboard (Page ${page}) ---\n`;
+    const start = (page - 1) * itemsPerPage;
+    const end = page * itemsPerPage;
+    const pageEntries = Array.from(board.entries()).slice(start, end);
+    let rank = start + 1;
+
+    for (const [userId, amount] of pageEntries) {
         try {
-            // Asynchronously fetch the user object from the ID if its not in the cache
             if (!usernameCache.has(userId)) {
                 const user = await client.users.fetch(userId);
                 const username = removeMDfromUsername(user.username);
                 usernameCache.set(userId, username);
-                stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
-            } else {
-                const username = usernameCache.get(userId);
-                stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
             }
+            const username = usernameCache.get(userId);
+            stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
         } catch (error) {
             console.error(`Could not find user with ID: ${userId}`);
+            stringBoard += `${rank}: Unknown User \\~\\~ ${amount.toLocaleString('en-US')}\n`;
         }
         rank++;
     }
@@ -419,11 +420,69 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply({ content: `${user.username} has ${credits.toLocaleString('en-US')} Liyue credits.`, ephemeral: true });
             } else if(subcommand === 'leaderboard'){
                 const board = liyueCredits.getLeaderboard(interaction.guild.id);
-                if(board.size === 0){
+                if (board.size === 0) {
                     return interaction.editReply({ content: "No records found in Database.", ephemeral: true });
                 }
-                const stringBoard = getLeaderboardString(board);
-                return interaction.editReply({ content: stringBoard, ephemeral: true });
+
+                let currentPage = 1;
+                const itemsPerPage = 10;
+                const totalPages = Math.ceil(board.size / itemsPerPage);
+
+                const getLeaderboardContent = async (page) => {
+                    const content = await getLeaderboardPageString(board, page, itemsPerPage);
+                    const buttons = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('prev_page')
+                                .setLabel('Previous')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(page === 1),
+                            new ButtonBuilder()
+                                .setCustomId('next_page')
+                                .setLabel('Next')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(page === totalPages)
+                        );
+                    return { content, components: [buttons] };
+                };
+
+                const initialMessage = await getLeaderboardContent(currentPage);
+                const reply = await interaction.editReply({ ...initialMessage, ephemeral: true, fetchReply: true });
+
+                const collector = reply.createMessageComponentCollector({ time: 60000 });
+
+                collector.on('collect', async i => {
+                    if (i.user.id !== interaction.user.id) {
+                        await i.reply({ content: `Only the user who ran the command can use these buttons.`, ephemeral: true });
+                        return;
+                    }
+
+                    if (i.customId === 'prev_page') {
+                        currentPage--;
+                    } else if (i.customId === 'next_page') {
+                        currentPage++;
+                    }
+
+                    const newMessage = await getLeaderboardContent(currentPage);
+                    await i.update(newMessage);
+                });
+
+                collector.on('end', collected => {
+                    const disabledButtons = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('prev_page')
+                                .setLabel('Previous')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(true),
+                            new ButtonBuilder()
+                                .setCustomId('next_page')
+                                .setLabel('Next')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(true)
+                        );
+                    reply.edit({ components: [disabledButtons] });
+                });
             } else if(subcommand === 'earthquake'){
                 const board = liyueCredits.getLeaderboard(interaction.guild.id);
                 const user = interaction.user;
