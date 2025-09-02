@@ -50,6 +50,30 @@ function getChance(percentage) {
     return Math.random() * 100 < percentage;
 }
 
+async function getLeaderboardString(board) {
+    let stringBoard = "--- Leaderboard ---\n";
+    let rank = 1;
+    // Iterate through the sorted map of [userId, score]
+    for (const [userId, amount] of board.entries()) {
+        try {
+            // Asynchronously fetch the user object from the ID if its not in the cache
+            if (!usernameCache.has(userId)) {
+                const user = await client.users.fetch(userId);
+                const username = removeMDfromUsername(user.username);
+                usernameCache.set(userId, username);
+                stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
+            } else {
+                const username = usernameCache.get(userId);
+                stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
+            }
+        } catch (error) {
+            console.error(`Could not find user with ID: ${userId}`);
+        }
+        rank++;
+    }
+    return stringBoard;
+}
+
 // When the client is ready, run this code (only once)
 client.once('ready', async () => {
     console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -398,26 +422,7 @@ client.on('interactionCreate', async interaction => {
                 if(board.size === 0){
                     return interaction.editReply({ content: "No records found in Database.", ephemeral: true });
                 }
-                let stringBoard = "--- Leaderboard ---\n";
-                let rank = 1;
-                // Iterate through the sorted map of [userId, score]
-                for (const [userId, amount] of board.entries()) {
-                    try {
-                        // Asynchronously fetch the user object from the ID if its not in the cache
-                        if(!usernameCache.has(userId)) {
-                            const user = await client.users.fetch(userId);
-                            const username = removeMDfromUsername(user.username);
-                            usernameCache.set(userId, username);
-                            stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
-                        } else {
-                            const username = usernameCache.get(userId);
-                            stringBoard += `${rank}: ${username} \\~\\~ ${amount.toLocaleString('en-US')}\n`;
-                        }
-                    } catch (error) {
-                        console.error(`Could not find user with ID: ${userId}`);
-                    }
-                    rank++;
-                }
+                const stringBoard = getLeaderboardString(board);
                 return interaction.editReply({ content: stringBoard, ephemeral: true });
             } else if(subcommand === 'earthquake'){
                 const board = liyueCredits.getLeaderboard(interaction.guild.id);
