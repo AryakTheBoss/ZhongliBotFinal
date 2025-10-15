@@ -355,11 +355,11 @@ client.on('interactionCreate', async interaction => {
                                 ephemeral: true
                             });
                         }
-                        const cooldownStatus = liyueCredits.canRemoveCredits(user.id, interaction.guild.id);
+                        const cooldownStatus = liyueCredits.canRemoveCredits(interaction.user.id, interaction.guild.id);
                         if (!cooldownStatus.canRemove) {
                             const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
                             return interaction.editReply({
-                                content: `You cannot take credits from ${user.username} yet. Please wait another ${timeLeft}.`,
+                                content: `You cannot take credits from anyone yet. Please wait another ${timeLeft}.`,
                                 ephemeral: true
                             });
                         }
@@ -370,7 +370,7 @@ client.on('interactionCreate', async interaction => {
                             });
                         }
                     }
-                    liyueCredits.removeCredits(user.id, amount, interaction.guild.id, false);
+                    liyueCredits.removeCredits(user.id, amount, interaction.guild.id, false, interaction.user.id);
                     return interaction.editReply({
                         content: `${interaction.user} has taken ${amount} liyue credits from ${user}!! Get mogged.`,
                         ephemeral: true
@@ -392,11 +392,11 @@ client.on('interactionCreate', async interaction => {
                                 ephemeral: true
                             });
                         }
-                        const cooldownStatus = liyueCredits.canAddCredits(user.id, interaction.guild.id);
+                        const cooldownStatus = liyueCredits.canAddCredits(interaction.user.id, interaction.guild.id);
                         if (!cooldownStatus.canRemove) {
                             const timeLeft = formatTimeLeft(cooldownStatus.timeLeft);
                             return interaction.editReply({
-                                content: `You cannot add credits to ${user.username} yet. Please wait another ${timeLeft}.`,
+                                content: `You cannot add credits to anyone yet. Please wait another ${timeLeft}.`,
                                 ephemeral: true
                             });
                         }
@@ -407,7 +407,7 @@ client.on('interactionCreate', async interaction => {
                             });
                         }
                     }
-                    liyueCredits.addCredits(user.id, amount, interaction.guild.id, false);
+                    liyueCredits.addCredits(user.id, amount, interaction.guild.id, false, interaction.user.id);
                     return interaction.editReply({
                         content: `${interaction.user} has given ${user} ${amount} liyue credits!! Well done Traveller.`,
                         ephemeral: true

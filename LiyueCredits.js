@@ -165,14 +165,22 @@ class LiyueCredits {
      * @param {string} userId - The ID of the user.
      * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to add.
-     * @param triggeredByGoodWord
+     * @param {boolean} triggeredByGoodWord
+     * @param {string|null} commandUserId - The ID of the user who ran the command.
      */
-    addCredits(userId, amount, guildId, triggeredByGoodWord) {
-        const currentData = this.getUserData(userId, guildId);
-        const newAmount = currentData.amount + amount;
-        const now = !triggeredByGoodWord ? Date.now() : currentData.lastModifiedAdd;
-        // When adding credits, we don't update the lastModified timestamp to not interfere with the cooldown 'INSERT OR REPLACE INTO credits (compositeId, amount, lastModified, lastModifiedAdd, goodWordCd) VALUES (?, ?, ?, ?, ?)'
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, currentData.lastModified, now, !triggeredByGoodWord ? currentData.goodWordCd : Date.now());
+    addCredits(userId, amount, guildId, triggeredByGoodWord, commandUserId = null) {
+        const targetUserData = this.getUserData(userId, guildId);
+        const newAmount = targetUserData.amount + amount;
+
+        // Update target user's credits
+        this.addStmt.run(userId + SEPERATOR + guildId, newAmount, targetUserData.lastModified, targetUserData.lastModifiedAdd, triggeredByGoodWord ? Date.now() : targetUserData.goodWordCd);
+
+        if (commandUserId && !triggeredByGoodWord) {
+            const commandUserData = this.getUserData(commandUserId, guildId);
+            const now = Date.now();
+            // Update command user's cooldown
+            this.addStmt.run(commandUserId + SEPERATOR + guildId, commandUserData.amount, commandUserData.lastModified, now, commandUserData.goodWordCd);
+        }
     }
 
     /**
@@ -180,14 +188,24 @@ class LiyueCredits {
      * @param {string} userId - The ID of the user.
      * @param {string} guildId - The ID of the guild.
      * @param {number} amount - The amount of credits to remove.
+     * @param {boolean} triggeredByBadWord
+     * @param {string|null} commandUserId - The ID of the user who ran the command.
      */
-    removeCredits(userId, amount, guildId, triggeredByBadWord) {
-        const currentData = this.getUserData(userId, guildId);
-        const currentCredits = this.checkCredits(userId, guildId);
-        const newAmount = currentCredits - amount;
-        const now = !triggeredByBadWord ? Date.now() : currentData.lastModified;
-        this.addStmt.run(userId+SEPERATOR+guildId, newAmount, now, currentData.lastModifiedAdd, currentData.goodWordCd);
+    removeCredits(userId, amount, guildId, triggeredByBadWord, commandUserId = null) {
+        const targetUserData = this.getUserData(userId, guildId);
+        const newAmount = targetUserData.amount - amount;
+
+        // Update target user's credits
+        this.addStmt.run(userId + SEPERATOR + guildId, newAmount, targetUserData.lastModified, targetUserData.lastModifiedAdd, targetUserData.goodWordCd);
+
+        if (commandUserId && !triggeredByBadWord) {
+            const commandUserData = this.getUserData(commandUserId, guildId);
+            const now = Date.now();
+            // Update command user's cooldown
+            this.addStmt.run(commandUserId + SEPERATOR + guildId, commandUserData.amount, now, commandUserData.lastModifiedAdd, commandUserData.goodWordCd);
+        }
     }
+
 
     /**
      * Checks the Liyue Credits of a user.
@@ -208,7 +226,7 @@ class LiyueCredits {
      */
     getUserData(userId, guildId) {
         const row = this.getStmt.get(userId+SEPERATOR+guildId);
-        return row || { amount: 1000, lastModified: null, lastModifiedAdd: null }; // Return 1000 for new users
+        return row || { amount: 1000, lastModified: null, lastModifiedAdd: null, goodWordCd: null }; // Return defaults for new users
     }
 }
 
