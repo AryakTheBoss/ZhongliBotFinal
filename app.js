@@ -206,8 +206,8 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     //TODO add these words as database tables and add command to add and remove them at will
-    const forbiddenWords = ['league of legends', 'league', 'favonius', 'fav', 'valorant', 'riot'];
-    const likedWords = ['coffie_wink', 'kafka', 'thigh', 'liyue', 'teriderp', 'yelan'];
+    const forbiddenWords = ['league of legends', 'league', 'favonius', 'fav', 'valorant', 'riot', 'val'];
+    const likedWords = ['kafka', 'thigh', 'liyue', 'nefer', 'yelan', 'eula', 'columbina'];
     const messageContent = message.content.toLowerCase();
     const matchedWordMinus = forbiddenWords.find(word => messageContent.toLowerCase().search('\\b' + word + '\\b') !== -1);
     const matchedWordPlus = likedWords.find(word => messageContent.toLowerCase().search('\\b' + word + '\\b') !== -1);
