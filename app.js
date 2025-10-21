@@ -508,22 +508,31 @@ client.on('interactionCreate', async interaction => {
                     const collector = reply.createMessageComponentCollector({time: 60000});
 
                     collector.on('collect', async i => {
-                        if (i.user.id !== interaction.user.id) {
-                            await i.reply({
-                                content: `Only the user who ran the command can use these buttons.`,
-                                ephemeral: true
+                        try {
+                            if (i.user.id !== interaction.user.id) {
+                                await i.reply({
+                                    content: `Only the user who ran the command can use these buttons.`,
+                                    ephemeral: true
+                                });
+                                return;
+                            }
+
+                            if (i.customId === 'prev_page') {
+                                currentPage--;
+                            } else if (i.customId === 'next_page') {
+                                currentPage++;
+                            }
+
+                            const newMessage = await getLeaderboardContent(currentPage);
+
+                            await i.update(newMessage);
+                        } catch (e) {
+                            await interaction.editReply({
+                                content: "Error changing page, Try again later.",
+                                ephemeral: false
                             });
-                            return;
+                            console.log("page change error: "+e);
                         }
-
-                        if (i.customId === 'prev_page') {
-                            currentPage--;
-                        } else if (i.customId === 'next_page') {
-                            currentPage++;
-                        }
-
-                        const newMessage = await getLeaderboardContent(currentPage);
-                        await i.update(newMessage);
                     });
 
                     collector.on('end', collected => {
